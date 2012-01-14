@@ -13,6 +13,16 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
+/*
+ This Tool is Granted to you AS IS, without any implied support or warranty
+ The Author of this tool is not Responsible for any misuse or loss of information
+ that may be caused by this tool, use at your own discretion
+
+ This Tool is For Legal Use only. And my only be used for Recovering your Own Lost
+ Information Stored in minecrafts's lastLogin File. Any other use is strictly forbidden
+
+ If you Do not Agree to these Terms, Do not Download this Tool
+ */
 public class dump {
 
 	/**
@@ -118,7 +128,8 @@ public class dump {
 				Directory = new File(userHome, '.' + applicationName + '/');
 			break;
 		case 4:
-			Directory = new File(userHome, "Library/Application Support/" + applicationName);
+			Directory = new File(userHome, "Library/Application Support/"
+					+ applicationName);
 			break;
 		default:
 			Directory = new File(userHome, applicationName + '/');
