@@ -28,8 +28,12 @@ public class dump {
 	/**
 	 * @param args
 	 */
+	private static Boolean PopupBox = false;
 	public static void main(String[] args) {
-
+		for(int i = 0; i < args.length; i++){
+			if(args[i] == "-g" || args[i] ==" --gui")
+				PopupBox = true;
+		}
 		System.out.println("[*] Dump.Jar - Minecraft Password Recovery Tool");
 		System.out.println("[*] ");
 		System.out
@@ -85,11 +89,15 @@ public class dump {
 			FileWriter fstream = new FileWriter(getDirectory("minecraft",
 					getOS()) + "/lastlogin.dmp");
 			BufferedWriter out = new BufferedWriter(fstream);
-			out.write(DatIS.readUTF() + "\n");
-			out.write(DatIS.readUTF() + "\n");
+			String Uname = DatIS.readUTF();
+			String Pword = DatIS.readUTF();
+			out.write(Uname + "\n");
+			out.write(Pword + "\n");
 			out.close();
 			DatIS.close();
-
+			//Thanks to bob_twinkles for the GUI Msg Box
+			if(PopupBox)
+				javax.swing.JOptionPane.showMessageDialog(null, "User: " + Uname + " \n Pass: " + Pword + " \nNow shutdown your computer to prevent evil people from reading your username and password from the ram!", "Dump.jar - bob_twinkles UI patch", javax.swing.JOptionPane.INFORMATION_MESSAGE);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -115,11 +123,11 @@ public class dump {
 		String userHome = System.getProperty("user.home", ".");
 		File Directory;
 		switch (osType.ordinal()) {
+		case 0:
 		case 1:
-		case 2:
 			Directory = new File(userHome, '.' + applicationName + '/');
 			break;
-		case 3:
+		case 2:
 			String applicationData = System.getenv("APPDATA");
 			if (applicationData != null)
 				Directory = new File(applicationData, "." + applicationName
@@ -127,7 +135,7 @@ public class dump {
 			else
 				Directory = new File(userHome, '.' + applicationName + '/');
 			break;
-		case 4:
+		case 3:
 			Directory = new File(userHome, "Library/Application Support/"
 					+ applicationName);
 			break;
