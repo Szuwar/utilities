@@ -24,15 +24,6 @@ import time
 Path = ""
 Map = { }
 
-def print_timing(func):
-	def wrapper(*arg):
-		t1 = time.time()
-		res = func(*arg)
-		t2 = time.time()
-		print '[*] It took %0.3f ms to UnRPA' % (func.func_name, (t2-t1)*1000.0)
-		return res
-	return wrapper
-@print_timing
 def UnRPA(_Path,_Dest):
 	Map.clear()
 	Map[_Path.lower()] = _Path
@@ -82,33 +73,26 @@ def UnRPA(_Path,_Dest):
 			print "[*] Output directory does not exsist, Creating"
 			os.mkdir(_Dest)
 		f = file(transfn(_Path), "rb")
-		datlen = 0
-		for name in index:
+		t1 = time.time()
+		for name, data in index.iteritems():
 			print "[*] Reading %s " % name.replace('/','_')
-			data = [ ]
-			if len(index[name]) == 1:
-				t = index[name][0]
-				if len(t) == 2:
-					offset, dlen = t
-					datlen = dlen
-					start = ''
-				else:
-					offset, dlen, start = t
-					datlen = dlen
-					rv = SubFile(f, offset, dlen, start)
+			if len(data[0]) == 2:
+				offset, dlen = data[0]
+				start = ''
 			else:
-				for offset, dlen in index[name]:           
-					f.seek(offset)
-					data.append(f.read(dlen))
-					rv = StringIO(''.join(data))
+				offset, dlen, start = data[0]
+			with open(_Path, "rb") as f:
+				f.seek(offset)
+				raw_file = start + f.read(dlen - len(start))
 			print "[*] Creating %s" % _Dest+"/"+name.replace('/','_')
-			fi = open(_Dest+"/"+name.replace('/','_'), 'w')
+			fi = open(_Dest+"/"+name.replace('/','_'), 'wb')
 			print "[*] Writing File To disk"
-			fi.write(rv.read(datlen))
+			fi.write(raw_file)
 			print "[*] Done Writing %s" % name.replace('/','_')
 			fi.close()
 		f.close()
-		print "[*] Done!"
+		t2 = time.time()
+		print "[*] Done! This Unpacking  took %0.3f miliseconds" % ((t2-t1)*1000.0)
 	except:
 		print "[*] Failure, Check the Stack trace..."
 		raise
@@ -135,136 +119,5 @@ def main():
 			print "[*] Usage: %s /path/to/data.rpa" % sys.argv[0]
 			sys.exit()
 
-## == Start RenPy loader.py SubFile Class == ##			
-class SubFile(object):
-
-    def __init__(self, f, base, length, start):
-        self.f = f
-        self.base = base
-        self.offset = 0
-        self.length = length
-        self.start = start
-
-        if start is None:
-            self.name = self.f.name
-        else:
-            self.name = None
-            
-        self.f.seek(self.base)
-
-    def read(self, length=None):
-
-        maxlength = self.length - self.offset
-
-        if length is not None:
-            length = min(length, maxlength)
-        else:
-            length = maxlength
-
-        rv1 = self.start[self.offset:self.offset + length]
-        length -= len(rv1)
-        self.offset += len(rv1)
-
-        if length:
-            rv2 = self.f.read(length)        
-            self.offset += len(rv2)
-        else:
-            rv2 = ""
-
-        return (rv1 + rv2)
-
-    def readline(self, length=None):
-
-        maxlength = self.length - self.offset
-        if length is not None:
-            length = min(length, maxlength)
-        else:
-            length = maxlength
-
-        # If we're in the start, then read the line ourselves.
-        if self.offset < len(self.start):
-            rv = ''
-
-            while length:
-                c = self.read(1)
-                rv += c
-                if c == '\n':
-                    break
-                length -= 1
-
-            return rv
-                
-        # Otherwise, let the system read the line all at once.
-        rv = self.f.readline(length)
-
-        self.offset += len(rv)
-
-        return rv
-
-    def readlines(self, length=None):
-        rv = [ ]
-
-        while True:
-            l = self.readline(length)
-
-            if not l:
-                break
-
-            if length is not None:
-                length -= len(l)
-                if l < 0:
-                    break
-
-            rv.append(l)
-
-        return rv
-
-    def xreadlines(self):
-        return self
-
-    def __iter__(self):
-        return self
-
-    def next(self): #@ReservedAssignment
-        rv = self.readline()
-
-        if not rv:
-            raise StopIteration()
-
-        return rv
-    
-    def flush(self):
-        return
-
-    
-    def seek(self, offset, whence=0):
-
-        if whence == 0:
-            offset = offset
-        elif whence == 1:
-            offset = self.offset + offset
-        elif whence == 2:
-            offset = self.length + offset
-
-        if offset > self.length:
-            offset = self.length
-
-        self.offset = offset
-            
-        offset = offset - len(self.start)
-        if offset < 0:
-            offset = 0
-            
-        self.f.seek(offset + self.base)
-
-    def tell(self):
-        return self.offset
-
-    def close(self):
-        self.f.close()
-
-    def write(self, s):
-        raise Exception("Write not supported by SubFile")
-## == END RenPy loader.py SubFile Class == ##
 if __name__ == "__main__":
 	main()
