@@ -69,13 +69,12 @@ def UnRPA(_Path,_Dest):
 			print "[*] Closing File"
 			fi.close()
 		print "[*] Riping Files"
-		if not os.path.exists(_Dest):
-			print "[*] Output directory does not exsist, Creating"
+		if not os.path.isdir(_Dest):
 			os.mkdir(_Dest)
 		f = file(transfn(_Path), "rb")
 		t1 = time.time()
 		for name, data in index.iteritems():
-			print "[*] Reading %s " % name.replace('/','_')
+			print "[*] Extracting %s" % _Dest+"/"+name
 			if len(data[0]) == 2:
 				offset, dlen = data[0]
 				start = ''
@@ -84,11 +83,12 @@ def UnRPA(_Path,_Dest):
 			with open(_Path, "rb") as f:
 				f.seek(offset)
 				raw_file = start + f.read(dlen - len(start))
-			print "[*] Creating %s" % _Dest+"/"+name.replace('/','_')
-			fi = open(_Dest+"/"+name.replace('/','_'), 'wb')
-			print "[*] Writing File To disk"
+			try:
+				os.makedirs(os.path.dirname(_Dest+"/"+name))
+			except:
+				os.path.isdir(os.path.dirname(_Dest+"/"+name))
+			fi = open(_Dest+"/"+name, 'wb')
 			fi.write(raw_file)
-			print "[*] Done Writing %s" % name.replace('/','_')
 			fi.close()
 		f.close()
 		t2 = time.time()
@@ -113,7 +113,7 @@ def main():
 		Path = sys.argv[1]
 		if os.path.isfile(Path):
 			print "[*] all good, UnRPAing to same directory"
-			UnRPA(Path,"./UnRPA")
+			UnRPA(Path,os.path.dirname(Path)+"/UnRPA")
 		else:
 			print "[*] '%s' Needs to be a file " % Path
 			print "[*] Usage: %s /path/to/data.rpa" % sys.argv[0]
