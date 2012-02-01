@@ -54,7 +54,7 @@ def UnRPA(_Path,_Dest):
 					index[_key] = [(Offset^Key, dlen^Key,Start) for Offset,dlen,Start in index[_key]]
 				keys_ += 1
 			print "[*] %s Index Keys Proccessed" % keys_
-			print "[*] Cloasing File"
+			print "[*] Closing File"
 			fi.close()
 		if line.startswith("RPA-2.0"):
 			print "[*] File Archive is a RenPy 2.0 RPA"
@@ -86,7 +86,7 @@ def UnRPA(_Path,_Dest):
 			try:
 				os.makedirs(os.path.dirname(_Dest+"/"+name))
 			except:
-				os.path.isdir(os.path.dirname(_Dest+"/"+name))
+				pass
 			fi = open(_Dest+"/"+name, 'wb')
 			fi.write(raw_file)
 			fi.close()
@@ -94,8 +94,8 @@ def UnRPA(_Path,_Dest):
 		t2 = time.time()
 		print "[*] Done! This Unpacking  took %0.3f miliseconds" % ((t2-t1)*1000.0)
 	except:
-		print "[*] Failure, Check the Stack trace..."
-		raise
+		print "[*] Failure, Aborting"
+		pass
 def transfn(name):
     name = Map.get(name.lower(), name) 
     if isinstance(name, unicode):
